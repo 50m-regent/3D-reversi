@@ -7,13 +7,13 @@ class Game:
         def __init__(self, size):
             self.size = size
             
-            self.board = [
+            self.board = array([
                 [
                     [
                         0 for z in range(self.size.z)
                     ] for y in range(self.size.y)
                 ] for x in range(self.size.x)
-            ]
+            ])
             self.board[self.size.x // 2 - 1][self.size.y // 2 - 1][self.size.z // 2 - 1] = 1
             self.board[self.size.x // 2 - 1][self.size.y // 2 - 1][self.size.z // 2] = 2
             self.board[self.size.x // 2 - 1][self.size.y // 2][self.size.z // 2 - 1] = 2
@@ -39,7 +39,7 @@ class Game:
                                 data[x][y] = marks[cell]
                                 break
                 
-                return rot90(array(data))
+                return rot90(array(data), k=3)
 
             def get_back():
                 data = [
@@ -56,7 +56,7 @@ class Game:
                                 data[x][y] = marks[cell]
                                 break
                 
-                return rot90(array(data))
+                return rot90(array(data), k=3)
 
             def get_left():
                 data = [
@@ -68,12 +68,12 @@ class Game:
                 for y in range(self.size.y):
                     for z in range(self.size.z):
                         for x in range(self.size.x):
-                            cell = self.board[x][y][self.size.z - 1 - z]
+                            cell = self.board[self.size.x - 1 - x][y][self.size.z - 1 - z]
                             if cell != 0:
                                 data[y][z] = marks[cell]
                                 break
                 
-                return rot90(array(data), k=2)
+                return array(data)
 
             def get_right():
                 data = [
@@ -85,12 +85,12 @@ class Game:
                 for y in range(self.size.y):
                     for z in range(self.size.z):
                         for x in range(self.size.x):
-                            cell = self.board[self.size.x - 1 - x][y][z]
+                            cell = self.board[x][y][z]
                             if cell != 0:
                                 data[y][z] = marks[cell]
                                 break
                 
-                return rot90(array(data), k=2)
+                return array(data)
 
             def get_up():
                 data = [
@@ -107,7 +107,7 @@ class Game:
                                 data[z][x] = marks[cell]
                                 break
 
-                return array(data)
+                return rot90(array(data), k=2)
 
             def get_down():
                 data = [
@@ -124,7 +124,7 @@ class Game:
                                 data[z][x] = marks[cell]
                                 break
 
-                return array(data)
+                return rot90(array(data), k=2)
 
             front = get_front()
             back  = get_back()
