@@ -22,16 +22,24 @@ def get_size():
 class Game:
     class Board:
         class Cell:
-            def __init__(self, coordinate):
+            def __init__(self, coordinate=Vector3(0, 0, 0), team=0):
                 self.coordinate = coordinate
+                self.team       = team
 
         def __init__(self, size):
-            self.board = array([[[self.Cell(Vector3(x, y, z)) for x in range(size.x)] for y in range(size.y)] for z in range(size.z)])
+            self.size  = size
+            self.board = array([[[self.Cell(Vector3(x, y, z)) for x in range(self.size.x)] for y in range(self.size.y)] for z in range(self.size.z)])
 
         def at(self, coordinate):
             return self.board[coordinate.z][coordinate.y][coordinate.x]
 
         def print(self):
+            left_margin  = array([[self.Cell(team=-1) for z in range(self.size.z)] for zz in range(self.size.z)])
+            right_margin = array([[self.Cell(team=-1) for zx in range(self.size.z + self.size.x)] for z in range(self.size.z)])
+
+            front = array([[self.board.at(Vector3(x, y, 0)) for x in range(self.size.x)] for y in range(self.size.y)])
+            back  = array([[self.board.at(Vector3(x, y, -1))]])
+
             pass
 
     def __init__(self, size):
