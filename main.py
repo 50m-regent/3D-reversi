@@ -117,8 +117,11 @@ class Game:
         score = self.board.score()
         print('White ' + str(score['White']) + ' : ' + str(score['Black']) + ' Black')
 
+    def play(self):
+        pass
+
 if __name__ == '__main__':
     size = get_size()
 
     game = Game(size)
-    game.print()
+    game.play()
