@@ -153,7 +153,7 @@ class Game:
                 ]
 
                 for delta in deltas:
-                    if self.board.at(coordinate).team == 0 and self.board.at(coordinate.add(delta)).team == turn % 2 + 1 and search(coordinate.add(delta), delta):
+                    if self.board.at(coordinate).team == 0 and self.board.at(coordinate.add(delta)).team == turn % 2 + 1 and search(coordinate.add(delta).add(delta), delta):
                         self.board.at(coordinate).team = 3
                         print(coordinate.x, coordinate.y, coordinate.z)
                         return True
@@ -165,6 +165,8 @@ class Game:
             for x in range(self.size.x):
                 for y in range(self.size.y):
                     for z in range(self.size.z):
+                        if self.board.at(Vector3(x, y, z)).team == 3:
+                            self.board.at(Vector3(x, y, z)).team = 0
                         if is_placable(Vector3(x, y, z)):
                             count += 1
 
@@ -229,7 +231,7 @@ class Game:
             self.board.at(self.maneuver).team = turn
 
             for delta in deltas:
-                if self.board.at(self.maneuver.add(delta)).team == turn % 2 + 1 and search(self.maneuver.add(delta), delta):
+                if self.board.at(self.maneuver.add(delta)).team == turn % 2 + 1 and search(self.maneuver.add(delta).add(delta), delta):
                     search(self.maneuver.add(delta), delta, flip=True)
 
         while True:
