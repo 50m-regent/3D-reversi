@@ -11,6 +11,7 @@ class Vector3:
 
 def get_size():
     while(True):
+        print('Board Size')
         x = int(input('X<< '))
         y = int(input('Y<< '))
         z = int(input('Z<< '))
@@ -107,7 +108,7 @@ class Game:
         self.size = size
         self.board = self.Board(self.size)
 
-    def print(self):
+    def out(self):
         data = self.board.out()
         for row in data:
             for cell in row:
@@ -117,11 +118,46 @@ class Game:
         score = self.board.score()
         print('White ' + str(score['White']) + ' : ' + str(score['Black']) + ' Black')
 
-    def play(self):
-        pass
+    def get_maneuver(self):
+        print('Next Maneuver')
+
+        while True:
+            x = int(input('X<< '))
+            y = int(input('Y<< '))
+            z = int(input('Z<< '))
+            x -= 1
+            y -= 1
+            z -= 1
+
+            if self.board.at(Vector3(x, y, z)).team == -1:
+                return Vector3(x, y, z)
+            else:
+                print('That cell is not placable!')
+
+    def set_placable(self):
+        count = 0
+
+        return count
+
+    def play(self, debug=False):
+        turn = 1
+
+        while True:
+            turn = turn % 2 + 1
+            placable_count = self.set_placable()
+
+            if placable_count == 0:
+                print('Pass')
+                continue
+
+            if debug:
+                self.out()
+
+            print(alias[turn] + "'s turn")
+            maneuver = self.get_maneuver()
 
 if __name__ == '__main__':
     size = get_size()
 
     game = Game(size)
-    game.play()
+    game.play(debug=True)
