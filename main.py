@@ -109,15 +109,20 @@ class Game:
     def play(self, debug=False):
         turn = 1
 
+        def search(now, delta, flip=False):
+            if self.board.at(now).team in (-1, 0):
+                return False
+            if self.board.at(now).team == turn:
+                return True
+            
+            if flip:
+                self.board.at(now).team = turn
+                
+            return search(now.add(delta), delta)
+
         def set_placable():
             def is_placable(coordinate):
-                def search(now, delta):
-                    if self.board.at(now).team == -1:
-                        return False
-                    if self.board.at(now).team == turn % 2 + 1:
-                        return True
-                    return search(now.add(delta), delta)
-
+                
                 deltas = [
                     Vector3(-1, -1, -1),
                     Vector3(-1, -1, 0),
@@ -150,6 +155,7 @@ class Game:
                 for delta in deltas:
                     if self.board.at(coordinate).team == 0 and self.board.at(coordinate.add(delta)).team == turn % 2 + 1 and search(coordinate.add(delta), delta):
                         self.board.at(coordinate).team = 3
+                        print(coordinate.x, coordinate.y, coordinate.z)
                         return True
                 
                 return False
@@ -185,10 +191,46 @@ class Game:
                 y -= 1
                 z -= 1
 
-                if self.board.at(Vector3(x, y, z)).team == -1:
+                if self.board.at(Vector3(x, y, z)).team == 3:
                     return Vector3(x, y, z)
                 else:
                     print('That cell is not placable!')
+
+        def flip():
+            deltas = [
+                Vector3(-1, -1, -1),
+                Vector3(-1, -1, 0),
+                Vector3(-1, -1, 1),
+                Vector3(-1, 0, -1),
+                Vector3(-1, 0, 0),
+                Vector3(-1, 0, 1),
+                Vector3(-1, 1, -1),
+                Vector3(-1, 1, 0),
+                Vector3(-1, 1, 1),
+                Vector3(0, -1, -1),
+                Vector3(0, -1, 0),
+                Vector3(0, -1, 1),
+                Vector3(0, 0, -1),
+                Vector3(0, 0, 1),
+                Vector3(0, 1, -1),
+                Vector3(0, 1, 0),
+                Vector3(0, 1, 1),
+                Vector3(1, -1, -1),
+                Vector3(1, -1, 0),
+                Vector3(1, -1, 1),
+                Vector3(1, 0, -1),
+                Vector3(1, 0, 0),
+                Vector3(1, 0, 1),
+                Vector3(1, 1, -1),
+                Vector3(1, 1, 0),
+                Vector3(1, 1, 1)
+            ]
+
+            self.board.at(self.maneuver).team = turn
+
+            for delta in deltas:
+                if self.board.at(self.maneuver.add(delta)).team == turn % 2 + 1 and search(self.maneuver.add(delta), delta):
+                    search(self.maneuver.add(delta), delta, flip=True)
 
         while True:
             turn = turn % 2 + 1
@@ -202,7 +244,9 @@ class Game:
                 out()
 
             print(alias[turn] + "'s turn")
-            maneuver = get_maneuver()
+            self.maneuver = get_maneuver()
+
+            flip()
 
 if __name__ == '__main__':
     def get_size():
