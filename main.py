@@ -9,17 +9,12 @@ class Vector3:
         self.y = y
         self.z = z
 
-def get_size():
-    while(True):
-        print('Board Size')
-        x = int(input('X<< '))
-        y = int(input('Y<< '))
-        z = int(input('Z<< '))
-
-        if x & 1 or y & 1 or z & 1:
-            print('Board size must be even number!!!')
-        else:
-            return Vector3(x, y, z)
+    def add(self, delta):
+        return Vector3(
+            self.x + delta.x,
+            self.y + delta.y,
+            self.z + delta.z
+        )
 
 class Game:
     class Board:
@@ -29,22 +24,25 @@ class Game:
                 self.team       = team
 
         def __init__(self, size):
+            def set_piece():
+                self.at(Vector3(self.size.x // 2, self.size.y // 2, self.size.z // 2)).team = 1
+                self.at(Vector3(self.size.x // 2, self.size.y // 2, self.size.z // 2 - 1)).team = 2
+                self.at(Vector3(self.size.x // 2, self.size.y // 2 - 1, self.size.z // 2)).team = 2
+                self.at(Vector3(self.size.x // 2, self.size.y // 2 - 1, self.size.z // 2 - 1)).team = 1
+                self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2, self.size.z // 2)).team = 2
+                self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2, self.size.z // 2 - 1)).team = 1
+                self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2 - 1, self.size.z // 2)).team = 1
+                self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2 - 1, self.size.z // 2 - 1)).team = 2
+
             self.size  = size
             self.board = [[[self.Cell(Vector3(x, y, z)) for x in range(self.size.x)] for y in range(self.size.y)] for z in range(self.size.z)]
-            self.set_piece()
-
-        def set_piece(self):
-            self.at(Vector3(self.size.x // 2, self.size.y // 2, self.size.z // 2)).team = 1
-            self.at(Vector3(self.size.x // 2, self.size.y // 2, self.size.z // 2 - 1)).team = 2
-            self.at(Vector3(self.size.x // 2, self.size.y // 2 - 1, self.size.z // 2)).team = 2
-            self.at(Vector3(self.size.x // 2, self.size.y // 2 - 1, self.size.z // 2 - 1)).team = 1
-            self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2, self.size.z // 2)).team = 2
-            self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2, self.size.z // 2 - 1)).team = 1
-            self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2 - 1, self.size.z // 2)).team = 1
-            self.at(Vector3(self.size.x // 2 - 1, self.size.y // 2 - 1, self.size.z // 2 - 1)).team = 2
+            set_piece()
 
         def at(self, coordinate):
-            return self.board[coordinate.z][coordinate.y][coordinate.x]
+            try:
+                return self.board[coordinate.z][coordinate.y][coordinate.x]
+            except:
+                return self.Cell(team=-1)
 
         def out(self):
             left_margin  = array([[self.Cell() for z in range(self.size.z)] for zz in range(self.size.z)])
@@ -56,11 +54,11 @@ class Game:
                 for y in range(self.size.x):
                     for z in range(self.size.z):
                         cell = self.at(Vector3(x, y, self.size.z - 1 - z))
-                        if cell.team != 0:
+                        if front[y][x].team == 0 or cell.team not in (0, 3):
                             front[y][x] = cell
                     for z in range(self.size.z):
                         cell = self.at(Vector3(self.size.x - 1 - x, y, z))
-                        if cell.team != 0:
+                        if back[y][x].team == 0 or cell.team not in (0, 3):
                             back[y][x] = cell
 
             left  = array([[self.Cell() for z in range(self.size.z)] for y in range(self.size.y)])
@@ -69,11 +67,11 @@ class Game:
                 for y in range(self.size.y):
                     for x in range(self.size.x):
                         cell = self.at(Vector3(self.size.x - 1 - x, y, self.size.z - 1 - z))
-                        if cell.team != 0:
+                        if left[y][z].team == 0 or cell.team not in (0, 3):
                             left[y][z] = cell
                     for x in range(self.size.x):
                         cell = self.at(Vector3(x, y, z))
-                        if cell.team != 0:
+                        if right[y][z].team == 0 or cell.team not in (0, 3):
                             right[y][z] = cell
 
             top    = array([[self.Cell() for x in range(self.size.x)] for z in range(self.size.z)])
@@ -82,11 +80,11 @@ class Game:
                 for z in range(self.size.z):
                     for y in range(self.size.y):
                         cell = self.at(Vector3(x, self.size.y - 1 - y, self.size.z - 1 - z))
-                        if cell.team != 0:
+                        if top[z][x].team == 0 or cell.team not in (0, 3):
                             top[z][x] = cell
                     for y in range(self.size.y):
                         cell = self.at(Vector3(x, y, z))
-                        if cell.team != 0:
+                        if bottom[z][x].team == 0 or cell.team not in (0, 3):
                             bottom[z][x] = cell
 
             return concatenate([
@@ -108,55 +106,117 @@ class Game:
         self.size = size
         self.board = self.Board(self.size)
 
-    def out(self):
-        data = self.board.out()
-        for row in data:
-            for cell in row:
-                print(marks[cell.team], end=' ')
-            print()
-
-        score = self.board.score()
-        print('White ' + str(score['White']) + ' : ' + str(score['Black']) + ' Black')
-
-    def get_maneuver(self):
-        print('Next Maneuver')
-
-        while True:
-            x = int(input('X<< '))
-            y = int(input('Y<< '))
-            z = int(input('Z<< '))
-            x -= 1
-            y -= 1
-            z -= 1
-
-            if self.board.at(Vector3(x, y, z)).team == -1:
-                return Vector3(x, y, z)
-            else:
-                print('That cell is not placable!')
-
-    def set_placable(self):
-        count = 0
-
-        return count
-
     def play(self, debug=False):
         turn = 1
 
+        def set_placable():
+            def is_placable(coordinate):
+                def search(now, delta):
+                    if self.board.at(now).team == -1:
+                        return False
+                    if self.board.at(now).team == turn % 2 + 1:
+                        return True
+                    return search(now.add(delta), delta)
+
+                deltas = [
+                    Vector3(-1, -1, -1),
+                    Vector3(-1, -1, 0),
+                    Vector3(-1, -1, 1),
+                    Vector3(-1, 0, -1),
+                    Vector3(-1, 0, 0),
+                    Vector3(-1, 0, 1),
+                    Vector3(-1, 1, -1),
+                    Vector3(-1, 1, 0),
+                    Vector3(-1, 1, 1),
+                    Vector3(0, -1, -1),
+                    Vector3(0, -1, 0),
+                    Vector3(0, -1, 1),
+                    Vector3(0, 0, -1),
+                    Vector3(0, 0, 1),
+                    Vector3(0, 1, -1),
+                    Vector3(0, 1, 0),
+                    Vector3(0, 1, 1),
+                    Vector3(1, -1, -1),
+                    Vector3(1, -1, 0),
+                    Vector3(1, -1, 1),
+                    Vector3(1, 0, -1),
+                    Vector3(1, 0, 0),
+                    Vector3(1, 0, 1),
+                    Vector3(1, 1, -1),
+                    Vector3(1, 1, 0),
+                    Vector3(1, 1, 1)
+                ]
+
+                for delta in deltas:
+                    if self.board.at(coordinate).team == 0 and self.board.at(coordinate.add(delta)).team == turn % 2 + 1 and search(coordinate.add(delta), delta):
+                        self.board.at(coordinate).team = 3
+                        return True
+                
+                return False
+
+            count = 0
+
+            for x in range(self.size.x):
+                for y in range(self.size.y):
+                    for z in range(self.size.z):
+                        if is_placable(Vector3(x, y, z)):
+                            count += 1
+
+            return count
+
+        def out():
+            data = self.board.out()
+            for row in data:
+                for cell in row:
+                    print(marks[cell.team], end=' ')
+                print()
+
+            score = self.board.score()
+            print('White ' + str(score['White']) + ' : ' + str(score['Black']) + ' Black')
+
+        def get_maneuver():
+            print('Next Maneuver')
+
+            while True:
+                x = int(input('X<< '))
+                y = int(input('Y<< '))
+                z = int(input('Z<< '))
+                x -= 1
+                y -= 1
+                z -= 1
+
+                if self.board.at(Vector3(x, y, z)).team == -1:
+                    return Vector3(x, y, z)
+                else:
+                    print('That cell is not placable!')
+
         while True:
             turn = turn % 2 + 1
-            placable_count = self.set_placable()
+            placable_count = set_placable()
 
             if placable_count == 0:
                 print('Pass')
                 continue
 
             if debug:
-                self.out()
+                out()
 
             print(alias[turn] + "'s turn")
-            maneuver = self.get_maneuver()
+            maneuver = get_maneuver()
 
 if __name__ == '__main__':
+    def get_size():
+        while(True):
+            print('Board Size')
+            x = int(input('X<< '))
+            y = int(input('Y<< '))
+            z = int(input('Z<< '))
+
+            if x & 1 or y & 1 or z & 1:
+                print('Board size must be even number!!!')
+            else:
+                return Vector3(x, y, z)
+
     size = get_size()
 
     game = Game(size)
