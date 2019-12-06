@@ -1,6 +1,5 @@
 window.addEventListener("DOMContentLoaded", init);
 
-
 function init() {
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -23,17 +22,33 @@ function init() {
 
     camera.position.set(0, 0, +1000);
 
-    const geometry = new THREE.BoxGeometry(500, 500, 500);
+    const geometry = new THREE.BoxGeometry(100, 100, 100);
     const material = new THREE.MeshStandardMaterial({
         color: 0x0000ff
     });
     const box = new THREE.Mesh(geometry, material);
     scene.add(box);
 
-    const directionalLight = new THREE.DirectionalLight(
+    const light_pos = [
+        [0, 0, 0],
+        [0, 0, 1],
+        [0, 1, 0],
+        [0, 1, 1],
+        [1, 0, 0],
+        [1, 0, 1],
+        [1, 1, 0],
+        [1, 1, 1],
+    ]
+
+    const directionalLight1 = new THREE.DirectionalLight(
         0xffffff
     );
-    directionalLight.position.set(1, 1, 1);
+    directionalLight1.position.set(1, 1, 1);
+    directionalLight1.intensity = 2;
+    const directionalLight1 = new THREE.DirectionalLight(
+        0xffffff
+    );
+    directionalLight1.position.set(1, 1, 1);
     scene.add(directionalLight);
 
     function tick() {
