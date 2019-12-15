@@ -1,18 +1,303 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/101/three.min.js"></script>
-  <script src="index.js"></script>
-  <style>
-    body {
-        margin: 0;
-        overflow: hidden;
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>3D Reversi</title>
+  <script>
+    alias = ['None', 'White', 'Black', 'Placable']
+    marks = [' ', '○', '●', '.']
+
+    class Vector3 {
+      constructor(x, y, z) {
+        this.x = x
+        this.y = y
+        this.z = z
+      }
+
+      add = (delta) => Vector3(this.x + delta.x, this.y + delta.y, this.z + delta.z);
     }
-  </style>
+
+    play = (size) => {
+      game = class {
+        constructor(size) {
+          this.board = class {
+            class Cell {
+              constructor(coordinate=Vector3(0, 0, 0), team=0) {
+                this.coordinate = coordinate
+                this.team       = team
+              }
+            }
+
+            constructor(size) {
+              this.size = size
+
+              this.board = () => {
+                board = Array(this.size.z)
+                board.forEach(plane => plane.forEach(row => row.forEach(cell => cell = this.Cell(Vector3(x, y, z)))))
+                return board
+              }()
+
+              x = this.size.x / 2
+              y = this.size.y / 2
+              z = this.size.z / 2
+
+              this.at(Vector3(x, y, z))             = 1
+              this.at(Vector3(x, y, z - 1))         = 2
+              this.at(Vector3(x, y - 1, z))         = 2
+              this.at(Vector3(x, y - 1, z - 1))     = 1
+              this.at(Vector3(x - 1, y, z))         = 2
+              this.at(Vector3(x - 1, y, z - 1))     = 1
+              this.at(Vector3(x - 1, y - 1, z))     = 1
+              this.at(Vector3(x - 1, y - 1, z - 1)) = 2
+            }
+
+            at = coordinate => {
+              try {
+                return this.board[coordinate.z][coordinate.y][coordinate.x].team
+              } catch(error) {
+                return -1
+              }
+            }
+
+            out = () => {
+              return 'aaa'
+            }
+
+            count = () => {
+              count = {'None': 0, 'White': 0, 'Black': 0, 'Placable': 0}
+              this.board.forEach(plane => plane.forEach(row => plane.forEach(cell => count[alias[cell.team]] += 1)))
+              return count
+            }
+          }(size)
+        }
+
+        play = (debug=False) => {
+          turn = 1
+
+          search = (now, delta, flip = False) => {
+            if ([-1, 0].indexOf(this.board.at(now)) != -1) {
+              return False
+            } else if (this.board.at(now) == turn) {
+              return True
+            }
+
+            if (flip) {
+              this.board.at(now) = turn
+            }
+
+            return search(now.add(delta), delta, flip)
+          }
+
+          set_placable = () => {
+            is_placable = coordinate => {
+              deltas = [
+                Vector3(-1, -1, -1),
+                Vector3(-1, -1, 0),
+                Vector3(-1, -1, 1),
+                Vector3(-1, 0, -1),
+                Vector3(-1, 0, 0),
+                Vector3(-1, 0, 1),
+                Vector3(-1, 1, -1),
+                Vector3(-1, 1, 0),
+                Vector3(-1, 1, 1),
+                Vector3(0, -1, -1),
+                Vector3(0, -1, 0),
+                Vector3(0, -1, 1),
+                Vector3(0, 0, -1),
+                Vector3(0, 0, 1),
+                Vector3(0, 1, -1),
+                Vector3(0, 1, 0),
+                Vector3(0, 1, 1),
+                Vector3(1, -1, -1),
+                Vector3(1, -1, 0),
+                Vector3(1, -1, 1),
+                Vector3(1, 0, -1),
+                Vector3(1, 0, 0),
+                Vector3(1, 0, 1),
+                Vector3(1, 1, -1),
+                Vector3(1, 1, 0),
+                Vector3(1, 1, 1)
+              ]
+
+              deltas.forEach(delta => {
+                if (this.board.at(coordinate) == 0 && this.board.at(coordinate.add(delta)) == turn % 2 + 1 && search(coordinate.add(delta), delta)) {
+                  this.board.at(coordinate) = 3
+                  return True
+                }
+              })
+
+              return False
+            }
+
+            count = 0
+
+            this.board.forEach(plane => plane.forEach(row => row.forEach(cell => {
+              if (cell.team == 3) {
+                cell.team = 0
+              }
+              if (is_placable(cell.coordinate)) {
+                count += 1
+              }
+            })))
+
+            return count
+          }
+
+          out = () => {
+            data = this.board.out()
+            // todo
+            count = this.board.count()
+          }
+
+          get_maneuver = () => {
+            // todo
+          }
+
+          flip = () => {
+            deltas = [
+              Vector3(-1, -1, -1),
+              Vector3(-1, -1, 0),
+              Vector3(-1, -1, 1),
+              Vector3(-1, 0, -1),
+              Vector3(-1, 0, 0),
+              Vector3(-1, 0, 1),
+              Vector3(-1, 1, -1),
+              Vector3(-1, 1, 0),
+              Vector3(-1, 1, 1),
+              Vector3(0, -1, -1),
+              Vector3(0, -1, 0),
+              Vector3(0, -1, 1),
+              Vector3(0, 0, -1),
+              Vector3(0, 0, 1),
+              Vector3(0, 1, -1),
+              Vector3(0, 1, 0),
+              Vector3(0, 1, 1),
+              Vector3(1, -1, -1),
+              Vector3(1, -1, 0),
+              Vector3(1, -1, 1),
+              Vector3(1, 0, -1),
+              Vector3(1, 0, 0),
+              Vector3(1, 0, 1),
+              Vector3(1, 1, -1),
+              Vector3(1, 1, 0),
+              Vector3(1, 1, 1)
+            ]
+
+            this.board.at(this.maneuver) = turn
+
+            deltas.forEach(delta => {
+              if (this.board.at(this.maneuver.add(delta)) == turn % 2 + 1 && search(this.maneuver.add(delta), delta)) {
+                search(this.maneuver.add(delta, delta, flip=True))
+              }
+            })
+          }
+        }
+
+      def play(self, debug=False):
+
+
+
+          def out():
+              data = self.board.out()
+              for row in data:
+                  for cell in row:
+                      print(marks[cell.team], end=' ')
+                  print()
+
+              score = self.board.score()
+              print('White ' + str(score['White']) + ' : ' + str(score['Black']) + ' Black')
+
+          def get_maneuver():
+              print('Next Maneuver')
+
+              while True:
+                  x = int(input('X<< '))
+                  y = int(input('Y<< '))
+                  z = int(input('Z<< '))
+                  x -= 1
+                  y -= 1
+                  z -= 1
+
+                  if self.board.at(Vector3(x, y, z)).team == 3:
+                      return Vector3(x, y, z)
+                  else:
+                      print('That cell is not placable!')
+
+          def flip():
+              deltas = [
+                  Vector3(-1, -1, -1),
+                  Vector3(-1, -1, 0),
+                  Vector3(-1, -1, 1),
+                  Vector3(-1, 0, -1),
+                  Vector3(-1, 0, 0),
+                  Vector3(-1, 0, 1),
+                  Vector3(-1, 1, -1),
+                  Vector3(-1, 1, 0),
+                  Vector3(-1, 1, 1),
+                  Vector3(0, -1, -1),
+                  Vector3(0, -1, 0),
+                  Vector3(0, -1, 1),
+                  Vector3(0, 0, -1),
+                  Vector3(0, 0, 1),
+                  Vector3(0, 1, -1),
+                  Vector3(0, 1, 0),
+                  Vector3(0, 1, 1),
+                  Vector3(1, -1, -1),
+                  Vector3(1, -1, 0),
+                  Vector3(1, -1, 1),
+                  Vector3(1, 0, -1),
+                  Vector3(1, 0, 0),
+                  Vector3(1, 0, 1),
+                  Vector3(1, 1, -1),
+                  Vector3(1, 1, 0),
+                  Vector3(1, 1, 1)
+              ]
+
+              self.board.at(self.maneuver).team = turn
+
+              for delta in deltas:
+                  if self.board.at(self.maneuver.add(delta)).team == turn % 2 + 1 and search(self.maneuver.add(delta).add(delta), delta):
+                      search(self.maneuver.add(delta), delta, flip=True)
+
+          while True:
+              turn = turn % 2 + 1
+              placable_count = set_placable()
+
+              if placable_count == 0:
+                  print('Pass')
+                  continue
+
+              if debug:
+                  out()
+
+              print(alias[turn] + "'s turn")
+              self.maneuver = get_maneuver()
+
+              flip()
+      }(size)
+    }
+
+    onBoardSizeInput = () => {
+      target = document.getElementById("Board Size")
+      x = document.forms.board_size_form.x.value
+      y = document.forms.board_size_form.y.value
+      z = document.forms.board_size_form.z.value
+      if (x & 1 || y & 1 || z & 1) {
+        target.innerText = 'Board size must be even number!'
+      } else {
+        play(Vector3(x, y, z))
+      }
+    }
+  </script>
 </head>
 <body>
-  <canvas id="mainCanvas"></canvas>
+  Board Size
+  <form id="board_size_form" action="">
+    X: <input id="x" type="number"/><br>
+    Y: <input id="y" type="number"/><br>
+    Z: <input id="z" type="number"/><br>
+    <input type="button" value="Start" onclick="onBoardSizeInput();"/>
+  </form>
+  <div id="Board Size"></div>
 </body>
 </html>

@@ -252,12 +252,13 @@ class Game:
 
 if __name__ == '__main__':
     def get_size():
-        while True:
+        while(True):
             print('Board Size')
             x = int(input('X<< '))
             y = int(input('Y<< '))
             z = int(input('Z<< '))
 
+            
             if x & 1 or y & 1 or z & 1:
                 print('Board size must be even number!!!')
             else:
@@ -267,3 +268,11 @@ if __name__ == '__main__':
 
     game = Game(size)
     game.play(debug=True)
+
+function main() {
+    var size = (function () {
+        print('Board Size')
+        
+        return 0
+    })()
+}
